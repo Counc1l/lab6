@@ -10,13 +10,20 @@ import java.io.FileNotFoundException;
 
 public class Components {
     public static void main(String[] args) {
+        // Try catch to prevent program failing if no file
         try {
+            // Creates file variable and Scanner to parse through it
             File f = new File(args[0]);
             Scanner sc = new Scanner(f);
 
+            // Boolean Adjacency Matrix of size first int
+            // If there is an edge between num1 & num2 - adjacencyMatrix[num1][num2] &&
+            // adjacencyMatrix[num2][num1] are set to true;
+            // This allows for a link to be shown between the two numbers
             int size = sc.nextInt();
             boolean[][] adjacencyMatrix = new boolean[size][size];
 
+            // Parses through the numbers in the file and adds them to adjacencyMatrix
             int first;
             int second;
             while (sc.hasNext()) {
@@ -27,34 +34,52 @@ public class Components {
                 adjacencyMatrix[second][first] = true;
             }
 
+            // Visited array for Depth First Search
             boolean[] visited = new boolean[size];
+            // Connections count
             int connections = 0;
 
+            // Goes through the available numbers in the Graph and uses a Depth First Search to determine if they're connected or not
             for (int i = 0; i < size; ++i) {
+                // if the value has been visited, it means it's already connected to another node, and is therefore already counted as a connection
                 if (!visited[i]) {
+                    // Searches for number of connected nodes
                     search(i, adjacencyMatrix, visited);
+                    // Increments connections
                     ++connections;
                 }
             }
 
+            // Prints the Number of connections
             System.out.println(connections);
 
-        } catch (FileNotFoundException exc) {
+        } catch (FileNotFoundException exc) { // Catches file not found and prints
             System.out.println("File not found: " + args[0]);
         }
     }
 
-    // Perform a depth first search (Used my Father for the idea and pseudocode)
+    /* Perform a depth first search (Used my Father for the idea and pseudocode)
+        Method is designed to visit all values(nodes) that are connected to a given component of the graph
+    */
     private static void search(int node, boolean[][] matrix, boolean[] visited) {
+        // Stack creation to avoid recursion for efficient memory usage
         Stack<Integer> st = new Stack<>();
         st.push(node);
 
+        // Loops through the stack, popping a node and marking it as visited, then pushes all unvisited nodes onto the stack
         while (!st.isEmpty()) {
             int curNode = st.pop();
 
+            // If the node has been visited, continue
             if (!visited[curNode]) {
                 visited[curNode] = true;
 
+                /* Goes through all remaining nodes, and if there is an edge between it and the current node
+                    and it hasn't been visited, it pushes it onto the stack to be revisited later
+
+                    This allows for nodes verified as connected to be checked against unvisited nodes that may be
+                    connected to curNode
+                */
                 for (int i = 0; i < matrix.length; ++i) {
                     if (matrix[curNode][i] && !visited[i]) {
                         st.push(i);
